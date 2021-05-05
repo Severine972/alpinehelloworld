@@ -4,7 +4,7 @@ pipeline {
        IMAGE_TAG = "latest"
        STAGING = "severine-staging"
        PRODUCTION = "severine-production"
-       IMAGE_REPO = "severine"
+       IMAGE_REPO = "severine972"
      }
      agent none
      stages {
@@ -47,6 +47,22 @@ pipeline {
              }
           }
      }
+    stage('Push image on dockerhub') {
+           agent any 
+           environment {
+                DOCKERHUB_LOGIN = credentials('dockerhub_severine')
+                
+            }
+
+           steps {
+               script {
+                   sh '''
+		   docker login --username ${DOCKERHUB_LOGIN_USR} --password ${DOCKERHUB_LOGIN_PSW}
+                   docker push ${IMAGE_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
+                   '''
+               }
+           }
+        }
      stage('Push image in staging and deploy it') {
        when {
               expression { GIT_BRANCH == 'origin/master' }
@@ -82,32 +98,9 @@ pipeline {
               heroku container:push -a $PRODUCTION web
               heroku container:release -a $PRODUCTION web
             '''
-           }
-        }
-     }
-  }
-}
-     stage('Push image in production and deploy it') {
-      when {
-              expression { GIT_BRANCH == 'origin/master' }
-            }
-      agent any
-      environment {
-          DOCKERHUB = credentials('dockerhub_severine')
-          ID_DOCKER = "severine972"
-      }
-      steps {
-          script {
-            sh '''
-              docker login
-              docker push  $ID_DOCKER/$IMAGE_NAME:$IMAGE_TAG
-            '''
           }
         }
      }
   }
 }
      
-
-        
-        
