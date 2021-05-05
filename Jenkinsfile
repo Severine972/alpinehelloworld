@@ -89,6 +89,9 @@ pipeline {
            sh '''
              curl https://$STAGING.herokuapp.com | grep -q "Hello world"
               '''
+           }
+        }
+     }
      stage('Push image in production and deploy it') {
        when {
               expression { GIT_BRANCH == 'origin/master' }
