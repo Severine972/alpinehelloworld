@@ -82,6 +82,26 @@ pipeline {
               heroku container:push -a $PRODUCTION web
               heroku container:release -a $PRODUCTION web
             '''
+           }
+        }
+     }
+  }
+}
+     stage('Push image in production and deploy it') {
+      when {
+              expression { GIT_BRANCH == 'origin/master' }
+            }
+      agent any
+      environment {
+          DOCKERHUB = credentials('dockerhub_severine')
+          ID_DOCKER = "severine972"
+      }
+      steps {
+          script {
+            sh '''
+              docker login
+              docker push  $ID_DOCKER/$IMAGE_NAME:$IMAGE_TAG
+            '''
           }
         }
      }
