@@ -2,3 +2,4 @@ prod:
   hosts:
     client
       ansible_host: 192.168.31.133
+#add the client host
